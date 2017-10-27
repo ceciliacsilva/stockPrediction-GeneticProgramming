@@ -3,7 +3,9 @@
 (require "expression.rkt")
 (require "config.rkt")
 
-(define *gp* (make-gp 100 3 0.7 0.01 10 10))
+(provide (all-defined-out))
+
+(define *gp* (make-gp 100 *operators* 3 0.7 0.01 10 10))
 
 (define (crossover progn1 progn2 gp)
   (let ( (pc (gp-pc gp)) )
