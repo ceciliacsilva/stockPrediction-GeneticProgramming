@@ -5,6 +5,8 @@
 (require "config.rkt")
 (require "apiRequest.rkt")
 
+(require "drawTree.rkt")
+
 (define (gp-run listPrice gp)
   (let ( (np (gp-np gp))
          (operators (gp-operators gp))
@@ -21,4 +23,3 @@
       popBegin)
     )
   )
-            
