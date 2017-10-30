@@ -5,19 +5,21 @@
 
 (provide (all-defined-out))
 
-(define *gp* (make-gp 100 *operators* 3 0.7 0.01 10 10))
+(define *gp* (make-gp 100 *operators* 3 0.7 0.01 3 0.7 3 100 100))
 
 (define (crossover progn1 progn2 gp)
   (let ( (pc (gp-pc gp)) )
     (let ( (r (random)) )
       (if (< r pc)
-          (let-values ( ((f1 f2) (crossover-operation progn1 progn2)) )
-            (list f1 f2))
-          (list progn1 progn2))
+          (crossover-operation (car progn1) (car progn2))
+          (values (car progn1) (car progn2)))
       ))
   )
 
 (define (crossover-operation progn1 progn2)
+  (when (null? progn1) (set! progn1 '(+ 1 1)))
+  (when (null? progn2) (set! progn2 '(+ 1 1)))
+  
   (let* ( (progn1Size (length (flatten progn1)))
           (progn2Size (length (flatten progn2)))
           (r1 (random progn1Size))
@@ -31,18 +33,20 @@
       ))
   )
 
-(define (mutation progn operators gp)
+(define (mutation progn operators gp listPrice)
   (let ( (depth (gp-depth gp))
          (pm (gp-pm gp)) )
     (let ( (r (random)) )
       (if (< r pm)
-          (mutation-operation progn operators depth)
+          (mutation-operation progn operators depth listPrice)
           progn)
       ))
   )
 
-(define (mutation-operation progn operators depth)
-  (let ( (newTree (gen-expression-grow operators (random 1 depth))) )
+(define (mutation-operation progn operators depth listPrice)
+  (when (null? progn) (set! progn '(+ 1 1)))
+  
+  (let ( (newTree (gen-expression-grow operators (random 1 depth) listPrice)) )
     (let* ( (prognSize (length (flatten progn)))
             (r1 (random prognSize)) )
       (let ( (subTree (get-treePosition progn r1)) )
