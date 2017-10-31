@@ -3,6 +3,8 @@
 (require net/http-client)
 (require json)
 
+(provide (all-defined-out))
+
 (define (http-request-get host)
   (let ( (connectionRequest (http-conn-open host)) )
     (lambda (endPoint [listQueryString '()])

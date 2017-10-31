@@ -3,7 +3,10 @@
 (require "geneticOperation.rkt")
 (require "expression.rkt")
 (require "config.rkt")
+
 (require "apiRequest.rkt")
+(require net/http-client)
+(require json)
 
 (require "drawTree.rkt")
 

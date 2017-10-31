@@ -13,6 +13,27 @@
   )
 
 (define (fitness-eval expr listPrice)
+  (let loop ( (lp listPrice) (result '()))
+      (match lp
+        ( (list dataT dataT+1 rest ...)
+          (let ( (yt (first dataT))
+                 (yt+1 (first dataT+1)) )
+            (let ( (output (expression-run expr yt)) )
+              (let ( (fitnessValue
+                      (if (and output (real? output))
+                          ;;caso nao seja valido ou real, punir o individuo
+                          (let* ( (rawFitness (abs (- output yt+1)))
+                                  (ajustedFitness (/ 1.0 (+ 1 rawFitness))) )
+                            ajustedFitness)
+                          0.1)) )
+                (loop (cons dataT+1 rest) (cons fitnessValue result))
+                ))
+            )
+          )
+        (_ (apply * result)))
+      )
+    )
+#|
   (apply *
    (for/list ( (diaryPrice (in-list listPrice)) )
      (match diaryPrice
@@ -28,7 +49,7 @@
      )
    )
   )
-
+|#
 (define (gen-expression-full operators depth listPrice)
   (let ( (expr (gen-expression-full-create operators depth)) )
     `(,expr . ,(fitness-eval expr listPrice))
