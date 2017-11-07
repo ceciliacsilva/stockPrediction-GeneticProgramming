@@ -42,4 +42,4 @@
   )
 
 (define http->responseJson (http-request-get "quantprice.herokuapp.com"))
-(define jsonResponse (http->responseJson "/api/v1.1/scoop/period" '(("tickers" "MSFT") ("begin" "2017-10-19"))))
+(define jsonResponse (http->responseJson "/api/v1.1/scoop/period" '(("tickers" "AAPL") ("begin" "2017-10-02"))))

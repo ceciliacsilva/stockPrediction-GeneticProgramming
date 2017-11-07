@@ -4,12 +4,14 @@
 
 (define mFator 10)
 
-(define *operators* '((+ 2) (- 2) (* 2) (/ 2) (sqr 1) (sqrt 1) (log 1)) )
+(define *operators* '((+ 2) (- 2) (* 2) (/ 2))) ;(sqr 1) (sqrt 1) (log 1)) )
+
+(define inputs '(=X1= =X2=))
 
 (define (expression-run expression input)
   (with-handlers ([real? (lambda(v) v)]
                   [exn:fail? (lambda(v) #f)])
-    (apply (eval `(lambda(=X=) ,expression)) (list input)))
+    (apply (eval `(lambda ,inputs ,expression))  input))
   )
 
 (define (fitness-eval expr listPrice)
@@ -18,7 +20,7 @@
         ( (list dataT dataT+1 rest ...)
           (let ( (yt (first dataT))
                  (yt+1 (first dataT+1)) )
-            (let ( (output (expression-run expr yt)) )
+            (let ( (output (expression-run expr dataT)) )
               (let ( (fitnessValue
                       (if (and output (real? output))
                           ;;caso nao seja valido ou real, punir o individuo
@@ -59,7 +61,7 @@
 (define (gen-expression-full-create operators depth)
   (cond ( (= depth 0)
           (let ( (rInput (random)) )
-            (if (< rInput 0.5) '=X=
+            (if (< rInput 0.5) (random-list inputs)
                 (* (random 1 mFator) (random))) )  )
         ( else
           (let* ( (op (random-list operators))
@@ -84,7 +86,7 @@
 (define (gen-expression-grow-create operators depth)
   (cond ( (= depth 0)
           (let ( (rInput (random)) )
-            (if (< rInput 0.5) '=X=
+            (if (< rInput 0.5) (random-list inputs)
                 (* (random 1 mFator) (random))) )  )
         ( else
           (let ( (rChoose (random)) )
@@ -101,7 +103,7 @@
                   ( (< rChoose 0.75)
                     (* (random 1 mFator) (random)) )
                   ( else
-                    '=X= ) )
+                    (random-list inputs) ) )
             ) )
         )
   )

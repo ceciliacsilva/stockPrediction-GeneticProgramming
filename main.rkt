@@ -28,7 +28,8 @@
                   (pop1All (append popCrossover pop0Elite))
                   (pop1 (population-elite pop1All np))
                   (bestPop (first (population-elite pop1 1))) )
-            
+            ;;(map displayln pop1)
+            ;;(displayln "\n\n")
             (if (or (= repeatBest nRepeat) (= repeat endSimul))
                 best
                 (loop pop1

@@ -17,8 +17,8 @@
   )
 
 (define (crossover-operation progn1 progn2)
-  (when (null? progn1) (set! progn1 '(+ 1 1)))
-  (when (null? progn2) (set! progn2 '(+ 1 1)))
+  ;;(when (null? progn1) (set! progn1 '(+ 1 1)))
+  ;;(when (null? progn2) (set! progn2 '(+ 1 1)))
   
   (let* ( (progn1Size (length (flatten progn1)))
           (progn2Size (length (flatten progn2)))
@@ -38,15 +38,15 @@
          (pm (gp-pm gp)) )
     (let ( (r (random)) )
       (if (< r pm)
-          (mutation-operation progn operators depth listPrice)
+          (fitness-eval (mutation-operation progn operators depth listPrice) listPrice)
           progn)
       ))
   )
 
 (define (mutation-operation progn operators depth listPrice)
-  (when (null? progn) (set! progn '(+ 1 1)))
+  ;;(when (null? progn) (set! progn '(+ 1 1)))
   
-  (let ( (newTree (gen-expression-grow operators (random 1 depth) listPrice)) )
+  (let ( (newTree (gen-expression-grow-create operators (random 1 depth))) )
     (let* ( (prognSize (length (flatten progn)))
             (r1 (random prognSize)) )
       (let ( (subTree (get-treePosition progn r1)) )
