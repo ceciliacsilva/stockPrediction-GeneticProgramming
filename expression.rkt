@@ -1,26 +1,33 @@
 #lang racket
 
 (provide (all-defined-out))
+(require "config.rkt")
 
 (define mFator 10)
 
 (define *operators* '((+ 2) (- 2) (* 2) (/ 2))) ;(sqr 1) (sqrt 1) (log 1)) )
 
-(define inputs '(=X1= =X2=))
+(define (inputs-create n)
+  (if (<= n 1) `(,(string->symbol (string-append "=X1=")))
+      (cons (string->symbol (string-append "=X" (number->string n) "=")) (inputs-create (- n 1)))
+      )
+  )
 
-(define (expression-run expression input)
+(define inputs (inputs-create 3))
+
+(define (expression-run expression input inputs)
   (with-handlers ([real? (lambda(v) v)]
                   [exn:fail? (lambda(v) #f)])
     (apply (eval `(lambda ,inputs ,expression))  input))
   )
 
-(define (fitness-eval expr listPrice)
+(define (fitness-eval expr listPrice gp)
   (let loop ( (lp listPrice) (result '()))
       (match lp
         ( (list dataT dataT+1 rest ...)
           (let ( (yt (first dataT))
                  (yt+1 (first dataT+1)) )
-            (let ( (output (expression-run expr dataT)) )
+            (let ( (output (expression-run expr dataT (inputs-create (gp-nInputs gp)) )) )
               (let ( (fitnessValue
                       (if (and output (real? output))
                           ;;caso nao seja valido ou real, punir o individuo
@@ -52,10 +59,11 @@
    )
   )
 |#
-(define (gen-expression-full operators depth listPrice)
-  (let ( (expr (gen-expression-full-create operators depth)) )
-    `(,expr . ,(fitness-eval expr listPrice))
-    )
+(define (gen-expression-full operators gp listPrice)
+  (let ( (depth (gp-depth gp)) )
+    (let ( (expr (gen-expression-full-create operators depth)) )
+      `(,expr . ,(fitness-eval expr listPrice gp))
+      ))    
   )
 
 (define (gen-expression-full-create operators depth)
@@ -77,10 +85,11 @@
         )
   )
 
-(define (gen-expression-grow operators depth listPrice)
-  (let ( (expr (gen-expression-grow-create operators depth)) )
-    `(,expr . ,(fitness-eval expr listPrice))
-    )
+(define (gen-expression-grow operators gp listPrice)
+  (let ( (depth (gp-depth gp)) )
+    (let ( (expr (gen-expression-grow-create operators depth)) )
+      `(,expr . ,(fitness-eval expr listPrice gp))
+    ))
   )
 
 (define (gen-expression-grow-create operators depth)

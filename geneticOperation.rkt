@@ -5,7 +5,7 @@
 
 (provide (all-defined-out))
 
-(define *gp* (make-gp 50 *operators* 3 0.7 0.1 3 0.7 3 100 100))
+(define *gp* (make-gp 50 3 *operators* 3 0.7 0.1 3 0.7 3 100 100))
 
 (define (crossover progn1 progn2 gp)
   (let ( (pc (gp-pc gp)) )
@@ -38,7 +38,7 @@
          (pm (gp-pm gp)) )
     (let ( (r (random)) )
       (if (< r pm)
-          (fitness-eval (mutation-operation progn operators depth listPrice) listPrice)
+          (fitness-eval (mutation-operation progn operators depth listPrice) listPrice gp)
           progn)
       ))
   )

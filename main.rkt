@@ -1,12 +1,10 @@
 #lang racket
 
+(provide (all-defined-out))
+
 (require "geneticOperation.rkt")
 (require "expression.rkt")
 (require "config.rkt")
-
-(require "apiRequest.rkt")
-(require net/http-client)
-(require json)
 
 (require "drawTree.rkt")
 
@@ -47,9 +45,9 @@
          (depth (gp-depth gp)) )
     
     (append (for/list ( (i (in-range (/ np 2))) )
-              (gen-expression-full operators depth listPrice))
+              (gen-expression-full operators gp listPrice))
             (for/list ( (i (in-range (/ np 2))) )
-              (gen-expression-grow operators depth listPrice)) )
+              (gen-expression-grow operators gp listPrice)) )
     )
   )
 
@@ -67,8 +65,8 @@
           ;(displayln progn1)
           ;(displayln progn2)
           ;(displayln "")
-          (list `(,progn1 . ,(fitness-eval progn1 listPrice))
-                `(,progn2 . ,(fitness-eval progn2 listPrice))) )
+          (list `(,progn1 . ,(fitness-eval progn1 listPrice gp))
+                `(,progn2 . ,(fitness-eval progn2 listPrice gp))) )
         )
       ))
   )
