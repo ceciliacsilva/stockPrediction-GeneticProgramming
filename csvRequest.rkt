@@ -2,6 +2,8 @@
 
 (require "apiRequest.rkt")
 
+(provide (all-defined-out))
+
 (define (stockGetInfos stock)
   (define httpClient (http-request-get "www.macrotrends.net"))
   
@@ -12,15 +14,17 @@
     (let* ( (splitChartData    (string-split marketCapResponse "var chartData = [{"))
             (splitEndChartData (string-split (cadr splitChartData) "}];"))
             (listChartData     (string-split (car splitEndChartData) "},{")) )
-      listChartData)
-    )
+      (map (lambda(a)
+             (string-splitList a '("," ":"))) listChartData )
+    ))
   
   (define listStockPriceHistory
     (let* ( (splitChartData    (string-split stockPriceHistoryResponse "var dataDaily = [{"))
             (splitEndChartData (string-split (cadr splitChartData) "}];"))
             (listChartData     (string-split (car splitEndChartData) "},{")) )
-      listChartData)
-    )
+      (map (lambda(a)
+             (string-splitList a '("," ":" "\""))) listChartData )
+    ))
 
   (values listMarketCap listStockPriceHistory)
   )
@@ -34,12 +38,22 @@
     (let* ( (splitChartData    (string-split 1yearTreasureRateResponse "var originalData = [{"))
             (splitEndChartData (string-split (cadr splitChartData) "}];"))
             (listChartData     (string-split (car splitEndChartData) "},{")) )
-      listChartData)
-    )
+      (map (lambda(a)
+             (string-splitList a '("," ":"))) listChartData )
+    ))
   
   list1yearTreasureRate
   )
 
+(define (string-splitList phase splits)
+  (let loop ( (listPhase (list phase))
+              (listSplit splits) )
+    (if (null? listSplit) listPhase
+        (loop (flatten (map (lambda(a) (string-split a (car listSplit)))
+                            listPhase))
+              (cdr listSplit)) )
+    )
+  )
 
 
 

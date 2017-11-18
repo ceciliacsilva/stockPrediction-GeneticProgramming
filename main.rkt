@@ -8,6 +8,8 @@
 
 (require "drawTree.rkt")
 
+(require "csvRequest.rkt")
+
 (define (gp-run listPrice gp)
   (let ( (np (gp-np gp))
          (nElite (gp-nElite gp))
@@ -90,6 +92,33 @@
           (last  tournament))  ))  )
 
 (define (population-elite pop n)
-  (let ( (popSort (sort pop #:key cdr >)) )
+  (let ( (popSort (sort pop #:key cdr <)) )
     (take popSort n)) )
+
+(define (run stock num)
+    (let-values ( ((listMarketCap listStockPriceHistory) (stockGetInfos stock)) )
+      (let ( (list1yearTreasureRate (1yearTreasureRate)) )
+        (for/list ( (marketCap  (in-list (reverse listMarketCap)))
+                    (stockPrice (in-list (reverse listStockPriceHistory)))
+                    (1yearTreasure (in-list (reverse list1yearTreasureRate)))
+                    (i (in-range num)) )
+          `(
+            ,(match stockPrice
+               ( (list "d"    _
+                       "o"    _
+                       "h"    _
+                       "l"    _
+                       "c"    valueClose
+                       "ma50" valueMa50
+                       "ma200" _)
+                 (string->number valueClose) ))
+            
+            ,(match marketCap
+               ( (list "\"date\"" _  "\"v1\"" value)
+                 (/ (string->number value) 1000) ))
+            
+            )
+          )
+        ))
+  )
 

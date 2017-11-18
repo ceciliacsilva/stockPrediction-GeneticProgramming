@@ -2,10 +2,15 @@
 
 (provide (all-defined-out))
 (require "config.rkt")
+(require "functions.rkt")
 
 (define mFator 10)
 
-(define *operators* '((+ 2) (- 2) (* 2) (/ 2))) ;(sqr 1) (sqrt 1) (log 1)) )
+(define *operators* '((+ 2) (- 2) (* 2) (/ 2) ) )
+
+(define (sqrtAbs x)
+  (sqrt (abs x))
+  )
 
 (define (inputs-create n)
   (if (<= n 1) `(,(string->symbol (string-append "=X1=")))
@@ -33,13 +38,22 @@
                           ;;caso nao seja valido ou real, punir o individuo
                           (let* ( (rawFitness (abs (- output yt+1)))
                                   (ajustedFitness (/ 1.0 (+ 1 rawFitness))) )
-                            ajustedFitness)
-                          0.1)) )
+                            ;;ajustedFitness
+                            rawFitness
+                            ;;output
+                            )
+                          ;;0.1
+                          0
+                          )
+                      ) )
                 (loop (cons dataT+1 rest) (cons fitnessValue result))
                 ))
             )
           )
-        (_ (apply * result)))
+        (_ ;;(apply * result)
+         ;;(rmse (map car (cdr listPrice)) result)
+         (sqrt (var result))
+           ))
       )
     )
 #|
@@ -60,13 +74,14 @@
   )
 |#
 (define (gen-expression-full operators gp listPrice)
-  (let ( (depth (gp-depth gp)) )
-    (let ( (expr (gen-expression-full-create operators depth)) )
+  (let ( (depth (gp-depth gp))
+         (inputs (inputs-create (gp-nInputs gp))) )
+    (let ( (expr (gen-expression-full-create operators depth inputs)) )
       `(,expr . ,(fitness-eval expr listPrice gp))
       ))    
   )
 
-(define (gen-expression-full-create operators depth)
+(define (gen-expression-full-create operators depth inputs)
   (cond ( (= depth 0)
           (let ( (rInput (random)) )
             (if (< rInput 0.5) (random-list inputs)
@@ -76,23 +91,24 @@
                   (operator (car op))
                   (arity (cadr op)) )
             (cond ( (= arity 1)
-                    `(,operator ,(gen-expression-full-create operators (- depth 1))) )
+                    `(,operator ,(gen-expression-full-create operators (- depth 1) inputs)) )
                   ( (= arity 2)
-                    `(,operator ,(gen-expression-full-create operators (- depth 1))
-                      ,(gen-expression-full-create operators (- depth 1))) )  )
+                    `(,operator ,(gen-expression-full-create operators (- depth 1) inputs)
+                      ,(gen-expression-full-create operators (- depth 1) inputs)) )  )
              )
           )
         )
   )
 
 (define (gen-expression-grow operators gp listPrice)
-  (let ( (depth (gp-depth gp)) )
-    (let ( (expr (gen-expression-grow-create operators depth)) )
+  (let ( (depth (gp-depth gp))
+         (inputs (inputs-create (gp-nInputs gp))) )
+    (let ( (expr (gen-expression-grow-create operators depth inputs)) )
       `(,expr . ,(fitness-eval expr listPrice gp))
     ))
   )
 
-(define (gen-expression-grow-create operators depth)
+(define (gen-expression-grow-create operators depth inputs)
   (cond ( (= depth 0)
           (let ( (rInput (random)) )
             (if (< rInput 0.5) (random-list inputs)
@@ -104,10 +120,10 @@
                             (operator (car op))
                             (arity (cadr op)) )
                       (cond ( (= arity 1)
-                              `(,operator ,(gen-expression-grow-create operators (- depth 1))) )
+                              `(,operator ,(gen-expression-grow-create operators (- depth 1) inputs)) )
                             ( (= arity 2)
-                              `(,operator ,(gen-expression-grow-create operators (- depth 1))
-                                          ,(gen-expression-grow-create operators (- depth 1))) )  )
+                              `(,operator ,(gen-expression-grow-create operators (- depth 1) inputs)
+                                          ,(gen-expression-grow-create operators (- depth 1) inputs)) )  )
                       )  )
                   ( (< rChoose 0.75)
                     (* (random 1 mFator) (random)) )

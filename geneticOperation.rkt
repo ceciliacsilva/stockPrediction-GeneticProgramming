@@ -35,18 +35,19 @@
 
 (define (mutation progn operators gp listPrice)
   (let ( (depth (gp-depth gp))
-         (pm (gp-pm gp)) )
+         (pm (gp-pm gp))
+         (inputs (inputs-create (gp-nInputs gp))) )
     (let ( (r (random)) )
       (if (< r pm)
-          (fitness-eval (mutation-operation progn operators depth listPrice) listPrice gp)
+          (fitness-eval (mutation-operation progn operators depth inputs listPrice) listPrice gp)
           progn)
       ))
   )
 
-(define (mutation-operation progn operators depth listPrice)
+(define (mutation-operation progn operators depth inputs listPrice)
   ;;(when (null? progn) (set! progn '(+ 1 1)))
   
-  (let ( (newTree (gen-expression-grow-create operators (random 1 depth))) )
+  (let ( (newTree (gen-expression-grow-create operators (random 1 depth) inputs)) )
     (let* ( (prognSize (length (flatten progn)))
             (r1 (random prognSize)) )
       (let ( (subTree (get-treePosition progn r1)) )

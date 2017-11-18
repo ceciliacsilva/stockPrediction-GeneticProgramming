@@ -23,7 +23,7 @@
                        (cadr (assoc name a)) )   )
                    ))
                jsonData)) )
-    ;;(displayln listPrice)
+    (displayln listPrice)
     (gp-run listPrice *gp1*)
     )
   )
