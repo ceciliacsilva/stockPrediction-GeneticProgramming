@@ -115,7 +115,7 @@
             
             ,(match marketCap
                ( (list "\"date\"" _  "\"v1\"" value)
-                 (/ (string->number value) 1000) ))
+                 (/ (string->number value) 10000) ))
             
             )
           )

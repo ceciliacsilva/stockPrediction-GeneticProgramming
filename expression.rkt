@@ -4,18 +4,22 @@
 (require "config.rkt")
 (require "functions.rkt")
 
-(define mFator 10)
+(define mFator 2)
 
-(define *operators* '((+ 2) (- 2) (* 2) (/ 2) ) )
+(define *operators* '((+ 2) (- 2) (* 2) (/ 2)) )
 
 (define (sqrtAbs x)
   (sqrt (abs x))
   )
 
-(define (inputs-create n)
+(define (inputs-create-recursion n)
   (if (<= n 1) `(,(string->symbol (string-append "=X1=")))
       (cons (string->symbol (string-append "=X" (number->string n) "=")) (inputs-create (- n 1)))
       )
+  )
+
+(define (inputs-create n)
+  (reverse (inputs-create-recursion n))
   )
 
 (define inputs (inputs-create 3))
