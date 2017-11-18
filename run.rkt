@@ -9,6 +9,11 @@
 (require net/http-client)
 (require json)
 
+;;> (define a (run "aapl" 50))
+;;> (define *gp1* (make-gp 10 2 *operators* 4 0.7 0.1 3 0.7 10 10 10))
+;;> (define c (gp-run a *gp1*))
+;;> c
+
 (define (run-herokuapp fields)
   (define-values (jsonColumns jsonData) (json-serialize (string->jsexpr jsonResponse)))
   (define *gp1* (make-gp 50 (length fields) *operators* 3 0.6 0.4 3 0.7 3 100 100))
