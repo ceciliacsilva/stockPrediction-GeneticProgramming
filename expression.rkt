@@ -14,7 +14,7 @@
 
 (define (inputs-create-recursion n)
   (if (<= n 1) `(,(string->symbol (string-append "=X1=")))
-      (cons (string->symbol (string-append "=X" (number->string n) "=")) (inputs-create (- n 1)))
+      (cons (string->symbol (string-append "=X" (number->string n) "=")) (inputs-create-recursion (- n 1)))
       )
   )
 

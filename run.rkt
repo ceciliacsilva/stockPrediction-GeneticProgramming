@@ -14,21 +14,34 @@
 ;;> (define c (gp-run a *gp1*))
 ;;> c
 
-(define (run-herokuapp fields)
-  (define-values (jsonColumns jsonData) (json-serialize (string->jsexpr jsonResponse)))
-  (define *gp1* (make-gp 50 (length fields) *operators* 3 0.6 0.4 3 0.7 3 100 100))
-  
-  (let ( (listPrice
-          (map (lambda(a)
-                 (for/list ( (field (in-list fields)) )
-                   (match field
-                     ( (list name mFator)
-                       (* (cadr (assoc name a)) mFator) )
-                     ( name
-                       (cadr (assoc name a)) )   )
-                   ))
-               jsonData)) )
-    (displayln listPrice)
-    (gp-run listPrice *gp1*)
-    )
+(define (run stock num)
+    (let-values ( ((listMarketCap listStockPriceHistory) (stockGetInfos stock)) )
+      (let ( (list1yearTreasureRate (1yearTreasureRate)) )
+        (for/list ( (marketCap  (in-list (reverse listMarketCap)))
+                    (stockPrice (in-list (reverse listStockPriceHistory)))
+                    (1yearTreasure (in-list (reverse list1yearTreasureRate)))
+                    (i (in-range num)) )
+          ;;(displayln marketCap)
+          `(
+            ,(match stockPrice
+               ( (list "d"    _
+                       "o"    _
+                       "h"    _
+                       "l"    _
+                       "c"    valueClose
+                       "ma50" valueMa50
+                       "ma200" _)
+                 (/ (string->number valueClose) 1) ))
+            
+            ,(match marketCap
+               ( (list "date" _  "v1" value)
+                 (/ (string->number value) 10000) ))
+
+            ,(match 1yearTreasure
+               ( (list "date" _  "close" value)
+                 (/ (string->number value) 100) ))
+            
+            )
+          )
+        ))
   )

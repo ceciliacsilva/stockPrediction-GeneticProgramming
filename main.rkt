@@ -10,12 +10,12 @@
 
 (require "apiRequest.rkt")
 
-(define (gp-run listPrice gp)
+(define (gp-run listPrice gp [popToContinue #f])
   (let ( (np (gp-np gp))
          (nElite (gp-nElite gp))
          (endSimul (gp-endSimul gp))
          (nRepeat (gp-nRepeat gp)) )
-    (let ( (popBegin (gp-begin-population gp listPrice)) )
+    (let ( (popBegin (population-toContinue gp listPrice popToContinue)) )
       (let loop ( (pop0  popBegin)
                   (best '())
                   (repeatBest  0)
@@ -31,7 +31,7 @@
             ;;(map displayln pop1)
             ;;(displayln "\n\n")
             (if (or (= repeatBest nRepeat) (= repeat endSimul))
-                best
+                (values best pop1)
                 (loop pop1
                       bestPop
                       (if (equal? best bestPop) (add1 repeatBest) 0)
@@ -41,6 +41,13 @@
         ))
     )
   )
+
+(define (population-toContinue gp listPrice popToContinue)
+  (if popToContinue
+      popToContinue
+      (gp-begin-population gp listPrice) )
+  )
+
 (define (gp-begin-population gp listPrice)
   (let ( (np (gp-np gp))
          (operators (gp-operators gp))
@@ -94,36 +101,3 @@
 (define (population-elite pop n)
   (let ( (popSort (sort pop #:key cdr <)) )
     (take popSort n)) )
-
-(define (run stock num)
-    (let-values ( ((listMarketCap listStockPriceHistory) (stockGetInfos stock)) )
-      (let ( (list1yearTreasureRate (1yearTreasureRate)) )
-        (for/list ( (marketCap  (in-list (reverse listMarketCap)))
-                    (stockPrice (in-list (reverse listStockPriceHistory)))
-                    (1yearTreasure (in-list (reverse list1yearTreasureRate)))
-                    (i (in-range num)) )
-          ;;(displayln marketCap)
-          `(
-            ,(match stockPrice
-               ( (list "d"    _
-                       "o"    _
-                       "h"    _
-                       "l"    _
-                       "c"    valueClose
-                       "ma50" valueMa50
-                       "ma200" _)
-                 (/ (string->number valueClose) 1) ))
-            
-            ,(match marketCap
-               ( (list "date" _  "v1" value)
-                 (/ (string->number value) 10000) ))
-
-            ,(match 1yearTreasure
-               ( (list "date" _  "close" value)
-                 (/ (string->number value) 100) ))
-            
-            )
-          )
-        ))
-  )
-
