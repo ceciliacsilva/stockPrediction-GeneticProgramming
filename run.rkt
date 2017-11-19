@@ -6,15 +6,36 @@
 (require "main.rkt")
 
 (require "apiRequest.rkt")
-(require net/http-client)
-(require json)
+(require "plot.rkt")
 
-;;> (define a (run "aapl" 50))
-;;> (define *gp1* (make-gp 10 2 *operators* 4 0.7 0.1 3 0.7 10 10 10))
-;;> (define c (gp-run a *gp1*))
-;;> c
+(define (stockPrediction stock num)
+  (let* ( (stockInfos (stock-getInfos stock num))
+          (nInputs  (length (car stockInfos))) )
+    ;;(displayln stockInfos)
+    ;;(displayln nInputs)
+    (let ( (np 50)
+           (depth 4)
+           (pc 0.7)
+           (pm 0.3)
+           (nTournament 3)
+           (k 0.7)
+           (nElite 10)
+           (endSimul 50)
+           (nRepeat 50) )
+    (let ( (gpConfigs
+            (make-gp np nInputs *operators* depth pc pm nTournament k nElite endSimul nRepeat)) )
+      (let-values ( ((bestExpr pop)
+                     (gp-run stockInfos gpConfigs))  )
 
-(define (run stock num)
+        (displayln bestExpr)
+
+        (plot-stockPrediction stockInfos (car bestExpr) (inputs-create nInputs))
+        
+        ))
+      ))
+  )
+
+(define (stock-getInfos stock num)
     (let-values ( ((listMarketCap listStockPriceHistory) (stockGetInfos stock)) )
       (let ( (list1yearTreasureRate (1yearTreasureRate)) )
         (for/list ( (marketCap  (in-list (reverse listMarketCap)))
