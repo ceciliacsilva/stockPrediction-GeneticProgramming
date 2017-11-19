@@ -8,7 +8,7 @@
 
 (require "drawTree.rkt")
 
-(require "csvRequest.rkt")
+(require "apiRequest.rkt")
 
 (define (gp-run listPrice gp)
   (let ( (np (gp-np gp))
@@ -102,6 +102,7 @@
                     (stockPrice (in-list (reverse listStockPriceHistory)))
                     (1yearTreasure (in-list (reverse list1yearTreasureRate)))
                     (i (in-range num)) )
+          ;;(displayln marketCap)
           `(
             ,(match stockPrice
                ( (list "d"    _
@@ -111,11 +112,15 @@
                        "c"    valueClose
                        "ma50" valueMa50
                        "ma200" _)
-                 (string->number valueClose) ))
+                 (/ (string->number valueClose) 1) ))
             
             ,(match marketCap
-               ( (list "\"date\"" _  "\"v1\"" value)
+               ( (list "date" _  "v1" value)
                  (/ (string->number value) 10000) ))
+
+            ,(match 1yearTreasure
+               ( (list "date" _  "close" value)
+                 (/ (string->number value) 100) ))
             
             )
           )

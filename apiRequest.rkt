@@ -1,45 +1,73 @@
 #lang racket
 
-(require net/http-client)
-(require json)
+(require "httpClient.rkt")
 
 (provide (all-defined-out))
 
-(define (http-request-get host)
-  (let ( (connectionRequest (http-conn-open host)) )
-    (lambda (endPoint [listQueryString '()])
-      (let* ( (queryString (list->queryString listQueryString))
-              (url (string-append endPoint "?" queryString)) )
-        (let-values ( ((responseStatus responseHeader responseBody)
-                       (http-conn-sendrecv! connectionRequest url)) )
-          (port->string responseBody)) 
-        ))
+(define (stockGetInfos stock)
+  (define httpClient (http-request-get "www.macrotrends.net"))
+  
+  (define marketCapResponse (httpClient "/assets/php/market_cap.php" `(("t" ,stock))))
+  (define stockPriceHistoryResponse (httpClient "/assets/php/stock_price_history.php" `(("t" ,stock))))
+
+  (define listMarketCap
+    (let* ( (splitChartData    (string-split marketCapResponse "var chartData = [{"))
+            (splitEndChartData (string-split (cadr splitChartData) "}];"))
+            (listChartData     (string-split (car splitEndChartData) "},{")) )
+      (map (lambda(a)
+             (string-splitList a '("," ":" "\""))) listChartData )
+    ))
+  
+  (define listStockPriceHistory
+    (let* ( (splitChartData    (string-split stockPriceHistoryResponse "var dataDaily = [{"))
+            (splitEndChartData (string-split (cadr splitChartData) "}];"))
+            (listChartData     (string-split (car splitEndChartData) "},{")) )
+      (map (lambda(a)
+             (string-splitList a '("," ":" "\""))) listChartData )
+    ))
+
+  (values listMarketCap listStockPriceHistory)
+  )
+
+(define (1yearTreasureRate)
+  (define httpClient (http-request-get "www.macrotrends.net"))
+  
+  (define 1yearTreasureRateResponse (httpClient "/2492/1-year-treasury-rate-yield-chart" '()))
+  
+  (define list1yearTreasureRate
+    (let* ( (splitChartData    (string-split 1yearTreasureRateResponse "var originalData = [{"))
+            (splitEndChartData (string-split (cadr splitChartData) "}];"))
+            (listChartData     (string-split (car splitEndChartData) "},{")) )
+      (map (lambda(a)
+             (string-splitList a '("," ":" "\""))) listChartData )
+    ))
+  
+  list1yearTreasureRate
+  )
+
+(define (string-splitList phase splits)
+  (let loop ( (listPhase (list phase))
+              (listSplit splits) )
+    (if (null? listSplit) listPhase
+        (loop (flatten (map (lambda(a) (string-split a (car listSplit)))
+                            listPhase))
+              (cdr listSplit)) )
     )
   )
 
-(define (list->queryString listQueryString)
-  (string-join 
-   (map (lambda(pair)
-                (string-join pair "=")) listQueryString)
-   "&")
-  )
 
-(define (json-serialize jsonResponse)
-  (match jsonResponse
-    ( (hash-table ( 'datatable
-                    (hash-table ('columns c)
-                                ('data d))))
-      (let ( (columnsJson (map (lambda(a) (hash-ref a 'name)) c)) )
-        (values columnsJson
-                (for/list ( (infosDia (in-list d)) )
-                  (map (lambda(name value) (list name value))
-                       columnsJson
-                       infosDia)
-                  )
-                );;endValues
-        )
+
+
+;;example - Read CVS
+(require csv-reading)
+(define *dataDirectory* "data")
+(define *1yearTreasureRate* "1-year-treasury-rate-yield-chart.csv")
+(define (read-1yearTreasureRate)
+  (let* ( (file (string-append *dataDirectory* "/" *1yearTreasureRate*))
+          (fileReader (open-input-file file)) )
+    (let ( (listValues (csv->list
+                        (make-csv-reader fileReader))) )
+      (lambda (size)
+        (take (reverse listValues) size))
       ))
   )
-
-(define http->responseJson (http-request-get "quantprice.herokuapp.com"))
-(define jsonResponse (http->responseJson "/api/v1.1/scoop/period" '(("tickers" "AAPL") ("begin" "2017-10-02"))))

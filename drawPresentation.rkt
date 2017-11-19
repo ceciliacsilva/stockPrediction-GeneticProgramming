@@ -3,7 +3,6 @@
 (require "geneticOperation.rkt")
 (require "expression.rkt")
 (require "config.rkt")
-(require "apiRequest.rkt")
 
 (require "drawTree.rkt")
 
