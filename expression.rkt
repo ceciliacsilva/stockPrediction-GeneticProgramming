@@ -27,15 +27,15 @@
 (define (expression-run expression input inputs)
   (with-handlers ([real? (lambda(v) v)]
                   [exn:fail? (lambda(v) #f)])
-    (apply (eval `(lambda ,inputs ,expression))  input))
+    (apply (eval `(lambda ,inputs ,expression))  (car input)))
   )
 
 (define (fitness-eval expr listPrice gp)
   (let loop ( (lp listPrice) (result '()))
       (match lp
         ( (list dataT dataT+1 rest ...)
-          (let ( (yt (first dataT))
-                 (yt+1 (first dataT+1)) )
+          (let ( (yt (first (car dataT)))
+                 (yt+1 (first (car dataT+1))) )
             (let ( (output (expression-run expr dataT (inputs-create (gp-nInputs gp)) )) )
               (let ( (fitnessValue
                       (if (and output (real? output))
