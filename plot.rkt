@@ -24,6 +24,7 @@
     
     (plot-file
      (list
+      (tick-grid)
       (points stockInfos
               #:label "Stock Price"
               #:alpha 1
@@ -34,10 +35,13 @@
               #:alpha 1
               #:sym 'fullcircle1
               #:color "red")
+      ;(point-label (last stockInfos))
+      ;(point-label (last predictions))
       )
      #:x-min -2
-     ;;#:y-min 0
-     #:x-max (+ (length predictions) 2)
+     #:y-min (* 0.95 (apply min (map cadr stockInfos)))
+     #:x-max (* (length predictions) 1.05)
+     #:y-max (* 1.05 (apply max (map cadr stockInfos)))
      outputName
      )
     )

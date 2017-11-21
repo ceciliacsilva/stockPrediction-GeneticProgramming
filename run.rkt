@@ -8,25 +8,33 @@
 (require "apiRequest.rkt")
 (require "plot.rkt")
 
-(define (stockPrediction stock num nameSimul)
+(define *output* "output/")
+
+(define (train-stockPrediction stock num nameSimul
+                               #:np [np 100] #:endSimul [endSimul 150]
+                               #:nRepeat [nRepeat 150])
   (let* ( (stockInfos (stock-getInfos stock num))
           (nInputs  (length (caar stockInfos)))
-          (outputPlot (string-append nameSimul "/" "plot.png"))
-          (outputExpr (string-append nameSimul "/" "expr.txt"))
-          (outputPop  (string-append nameSimul "/" "pop.txt"))
-          (outputStock (string-append nameSimul "/" "stock.txt")) )
+          (outputDirectory (string-append *output* nameSimul))
+          (outputPlot (string-append *output* nameSimul "/" "plot.png"))
+          (outputExpr (string-append *output* nameSimul "/" "expr.txt"))
+          (outputPop  (string-append *output* nameSimul "/" "pop.txt"))
+          (outputStock (string-append *output* nameSimul "/" "stock.txt"))
+          (outputInfos (string-append *output* nameSimul "/" "infos.rkt"))
+          (outputConfigs (string-append *output* nameSimul "/" "config.rkt")) )
     ;;(displayln stockInfos)
     ;;(displayln nInputs)
-    (make-directory* nameSimul)
-    (let ( (np 70)
+    (make-directory* outputDirectory)
+    (let ( (infosToSave (list stock (cdr (last stockInfos)) num))
+           (np 100)
            (depth 4)
            (pc 0.7)
            (pm 0.3)
            (nTournament 3)
            (k 0.7)
            (nElite 10)
-           (endSimul 100)
-           (nRepeat 100) )
+           (endSimul 150)
+           (nRepeat 150) )
     (let ( (gpConfigs
             (make-gp np nInputs *operators* depth pc pm nTournament k nElite endSimul nRepeat)) )
       (let-values ( ((bestExpr pop)
@@ -35,7 +43,9 @@
         (file-bkpInfo bestExpr outputExpr)
         (file-bkpInfo pop outputPop)
         (file-bkpInfo stockInfos outputStock)
-
+        (file-bkpInfo infosToSave outputInfos)
+        (file-bkpInfo gpConfigs outputConfigs)
+        
         (plot-stockPrediction stockInfos (car bestExpr) (inputs-create nInputs) outputPlot)
         
         ))
