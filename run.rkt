@@ -10,6 +10,53 @@
 
 (define *output* "output/")
 
+(define (run-stockPrediction nameSimul)
+  (let* ( (outputPlot (string-append *output* nameSimul "/" "plot.png"))
+          (outputExpr (string-append *output* nameSimul "/" "expr.txt"))
+          (outputPop  (string-append *output* nameSimul "/" "pop.txt"))
+          (outputStock (string-append *output* nameSimul "/" "stock.txt"))
+          (outputInfos (string-append *output* nameSimul "/" "infos.rkt"))
+          (outputConfigs (string-append *output* nameSimul "/" "config.rkt")) )
+    (let ( (infosToSave (read-file outputInfos))
+           (pop         (read-file outputPop))
+           (gpConfigList (read-file outputConfigs))
+           (listPrice    (read-file outputStock)) )
+      ;;(displayln gpConfigList)
+      (match infosToSave
+        ( (list stock date num)
+          (let* ( (listPriceApi (stock-getInfosMatch stock num))
+                  (listPriceApiNewValues (stock-getInfosDate listPriceApi date))
+                  (listPriceNewComplete (append listPrice listPriceApiNewValues)) 
+                  (listPriceNew (take-right listPriceNewComplete num)) )
+            
+            (let* ( (gpConfigs (apply make-gp gpConfigList))
+                    (nInputs (gp-nInputs gpConfigs)) )
+              (set-gp-endSimul! gpConfigs 30)
+              
+              (let-values ( ((bestExpr pop)
+                             (gp-run listPriceNew gpConfigs pop))  )
+                
+                (file-bkpInfo bestExpr outputExpr)
+                (file-bkpInfo pop outputPop)
+                (file-bkpInfo listPriceNew outputStock)
+                (file-bkpInfo (list stock (cdr (last listPriceNew)) num) outputInfos)
+                (file-bkpInfo gpConfigList outputConfigs)
+                
+                (plot-stockPrediction listPriceNewComplete (car bestExpr) (inputs-create nInputs) outputPlot)
+                
+                ))
+            ))
+        )
+      )
+    )
+  )
+
+(define (read-file name)
+  (call-with-input-file name
+    (lambda(p)
+      (read p)))
+  )
+
 (define (train-stockPrediction stock num nameSimul
                                #:np [np 100] #:endSimul [endSimul 150]
                                #:nRepeat [nRepeat 150])
@@ -36,7 +83,9 @@
            (endSimul 150)
            (nRepeat 150) )
     (let ( (gpConfigs
-            (make-gp np nInputs *operators* depth pc pm nTournament k nElite endSimul nRepeat)) )
+            (make-gp np nInputs *operators* depth pc pm nTournament k nElite endSimul nRepeat))
+           (gpConfigSymbol
+            (list np nInputs *operators* depth pc pm nTournament k nElite endSimul nRepeat)) )
       (let-values ( ((bestExpr pop)
                      (gp-run stockInfos gpConfigs))  )
 
@@ -44,7 +93,7 @@
         (file-bkpInfo pop outputPop)
         (file-bkpInfo stockInfos outputStock)
         (file-bkpInfo infosToSave outputInfos)
-        (file-bkpInfo gpConfigs outputConfigs)
+        (file-bkpInfo gpConfigSymbol outputConfigs)
         
         (plot-stockPrediction stockInfos (car bestExpr) (inputs-create nInputs) outputPlot)
         
@@ -56,6 +105,12 @@
   (define out (open-output-file name #:exists 'replace))
   (write info out)
   (close-output-port out)
+  )
+
+(define (stock-getInfosDate listPrice date)
+  (filter-map (lambda(a) (and (string>? (cdr a)
+                                        date)
+                              a)) listPrice)
   )
 
 (define (stock-getInfos stock num)
