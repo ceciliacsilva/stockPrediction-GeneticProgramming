@@ -1,0 +1,75 @@
+<html>
+  <head>
+    <title> @nameSimul </title>
+    <style>
+table {
+    width:100%;
+}
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+th, td {
+    padding: 5px;
+    text-align: left;
+}
+table#t01 tr:nth-child(even) {
+    background-color: #eee;
+}
+table#t01 tr:nth-child(odd) {
+   background-color:#fff;
+}
+table#t01 th {
+    background-color: black;
+    color: white;
+}
+    </style>
+  </head>
+  <body>
+    <center>
+      <h1>Trabalho - Algoritmos Genéticos</h1>
+       
+       <h2>Ação: @stock </h2>
+       <hr>
+
+       
+       <h3>Último dado de entrada:</h3>
+       <h4>Data: @lastInputDate </h4>
+       <h4>Preço: @lastInputPrice </h4>
+       
+       <h3 style="background-color:DodgerBlue;">Próximo valor: @prediction </h3>
+       <hr>
+       
+       <h3> Função: @exprString </h3>
+       <h3> Aptidão: @fitness </h3>
+       <hr>
+     </center>
+
+    <h2>Gráfico</h2>
+    <img src = @outputPlot />
+    <hr>
+
+    <table id="t01">
+      <tr>
+	<th>Data</th>
+	<th>Preço Fechamento</th>
+	<th>Preço Estimado</th>
+	<th>Erro Absoluto(%)</th>
+	<th>Erro Relativo(%)</th>
+      </tr>
+      @for/list[([c tableInfos])]{
+      @list{
+      <tr>
+	<td> @(first c) </td>
+	<td> @(second c)</td>
+	<td> @(third c) </td>
+	<td> @(fourth c) </td>
+	<td> @(fifth c) </td>
+      </tr>
+ 
+      }
+      }
+  </table>
+
+   </body>
+</html>
