@@ -1,0 +1,25 @@
+#+TITLE: Genetic Programming - Stock Prediction
+#+AUTHOR: Cecília Carneiro e Silva
+#+DATE: 23/11/2017
+
+* Use
+
+** Run.rkt
+
+   Model training:
+
+#+BEGIN_SRC shell
+> (train-stockPrediction "aapl" 50 "Apple50-b" #:np 110 #:endSimul 110)
+#+END_SRC
+   
+   Run:
+
+#+BEGIN_SRC shell
+> (run-stockPrediction "Apple50-b")
+#+END_SRC
+
+** htmlCreate.rkt
+
+#+BEGIN_SRC shell
+> (html-responseStock "Apple50-b")
+#+END_SRC

@@ -1,0 +1,57 @@
+% Created 2017-11-23 Qui 20:55
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{fixltx2e}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{float}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{textcomp}
+\usepackage{marvosym}
+\usepackage{wasysym}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\tolerance=1000
+\author{Cecília Carneiro e Silva}
+\date{23/11/2017}
+\title{Genetic Programming - Stock Prediction}
+\hypersetup{
+  pdfkeywords={},
+  pdfsubject={},
+  pdfcreator={Emacs 25.1.1 (Org mode 8.2.10)}}
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+
+\section{Use}
+\label{sec-1}
+
+\subsection{Run.rkt}
+\label{sec-1-1}
+
+Model training:
+
+\begin{verbatim}
+> (train-stockPrediction "aapl" 50 "Apple50-b" #:np 110 #:endSimul 110)
+\end{verbatim}
+
+Run:
+
+\begin{verbatim}
+> (run-stockPrediction "Apple50-b")
+\end{verbatim}
+
+\subsection{htmlCreate.rkt}
+\label{sec-1-2}
+
+\begin{verbatim}
+> (html-responseStock "Apple50-b")
+\end{verbatim}
+% Emacs 25.1.1 (Org mode 8.2.10)
+\end{document}
