@@ -38,11 +38,11 @@
               (let-values ( ((bestExpr pop)
                              (gp-run listPriceNew gpConfigs pop))  )
 
-                (displayln bestExpr)
-                (displayln (cdr (last listPriceNew)))
+                ;;(displayln bestExpr)
+                ;;(displayln (cdr (last listPriceNew)))
 
-                (displayln listPriceApiNewValues)
-                (displayln listPriceNew)
+                ;;(displayln listPriceApiNewValues)
+                ;;(displayln listPriceNew)
                 
                 (file-bkpInfo bestExpr outputExpr)
                 (file-bkpInfo pop outputPop)
