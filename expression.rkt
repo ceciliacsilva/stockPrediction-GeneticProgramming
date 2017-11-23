@@ -31,7 +31,8 @@
   )
 
 (define (fitness-eval expr listPrice gp)
-  (let loop ( (lp listPrice) (result '()))
+  (let ( (fitnessFunction (gp-fitnessFunction gp)) )
+    (let loop ( (lp listPrice) (result '()))
       (match lp
         ( (list dataT dataT+1 rest ...)
           (let ( (yt (first (car dataT)))
@@ -41,42 +42,37 @@
                       (if (and output (real? output))
                           ;;caso nao seja valido ou real, punir o individuo
                           (let* ( (rawFitness (abs (- output yt+1)))
-                                  (ajustedFitness (/ 1.0 (+ 1 rawFitness))) )
-                            ;;ajustedFitness
-                            rawFitness
-                            ;;output
+                                  (ajustedFitness (/ rawFitness yt+1)) )
+                            (fitnessInput rawFitness ajustedFitness output fitnessFunction)
+                            ;;rawFitness
                             )
-                          ;;0.1
-                          0
+                          output
                           )
                       ) )
                 (loop (cons dataT+1 rest) (cons fitnessValue result))
                 ))
             )
           )
-        (_ ;;(apply * result)
-         ;;(rmse (map car (cdr listPrice)) result)
-         (sqrt (var result))
-           ))
+        (_ 
+         (fitnessCalc result listPrice fitnessFunction)
+         ;;(sqrt (var result))
+         ))
       )
     )
-#|
-  (apply *
-   (for/list ( (diaryPrice (in-list listPrice)) )
-     (match diaryPrice
-       ( (list day price)
-         (let ( (output (expression-run expr day)) )
-           (if (and output (real? output))
-               ;;caso nao seja valido ou real, punir o individuo
-               (let* ( (rawFitness (abs (- output price)))
-                       (ajustedFitness (/ 1.0 (+ 1 rawFitness))) )
-                 ajustedFitness)
-               0.1))  )
-       )
-     )
-   )
   )
-|#
+
+(define (fitnessInput rawFitness ajustedFitness output fitnessFunction)
+  (cond ( (equal? fitnessFunction dRMSE) output)
+        ( (or (equal? fitnessFunction dErroAbsoluto) (equal? fitnessFunction #f)) rawFitness)
+        ( (equal? fitnessFunction dErroRelativo) ajustedFitness) )
+  )
+
+(define (fitnessCalc result listPrice fitnessFunction)
+  (cond ( (equal? fitnessFunction dRMSE) (rmse (map caar (cdr listPrice)) result))
+        ( (or (equal? fitnessFunction dErroAbsoluto) (equal? fitnessFunction #f)) (sqrt (var result)))
+        ( (equal? fitnessFunction dErroRelativo) (sqrt (var result))) )
+  )
+
 (define (gen-expression-full operators gp listPrice)
   (let ( (depth (gp-depth gp))
          (inputs (inputs-create (gp-nInputs gp))) )

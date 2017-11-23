@@ -23,23 +23,31 @@
            (listPrice    (read-file outputStock)) )
       ;;(displayln gpConfigList)
       (match infosToSave
-        ( (list stock date num)
+        ( (list stock date num fitnessFunction)
           (let* ( (listPriceApi (stock-getInfosMatch stock num))
-                  (listPriceApiNewValues (stock-getInfosDate listPriceApi date))
+                  (listPriceApiNewValues (reverse (stock-getInfosDate listPriceApi date)))
                   (listPriceNewComplete (append listPrice listPriceApiNewValues)) 
                   (listPriceNew (take-right listPriceNewComplete num)) )
             
             (let* ( (gpConfigs (apply make-gp gpConfigList))
                     (nInputs (gp-nInputs gpConfigs)) )
+
               (set-gp-endSimul! gpConfigs 30)
+              (set-gp-fitnessFunction! gpConfigs fitnessFunction)
               
               (let-values ( ((bestExpr pop)
                              (gp-run listPriceNew gpConfigs pop))  )
+
+                (displayln bestExpr)
+                (displayln (cdr (last listPriceNew)))
+
+                (displayln listPriceApiNewValues)
+                (displayln listPriceNew)
                 
                 (file-bkpInfo bestExpr outputExpr)
                 (file-bkpInfo pop outputPop)
-                (file-bkpInfo listPriceNew outputStock)
-                (file-bkpInfo (list stock (cdr (last listPriceNew)) num) outputInfos)
+                (file-bkpInfo listPriceNewComplete outputStock)
+                (file-bkpInfo (list stock (cdr (last listPriceNew)) num fitnessFunction) outputInfos)
                 (file-bkpInfo gpConfigList outputConfigs)
                 
                 (plot-stockPrediction listPriceNewComplete (car bestExpr) (inputs-create nInputs) outputPlot)
@@ -59,7 +67,8 @@
 
 (define (train-stockPrediction stock num nameSimul
                                #:np [np 100] #:endSimul [endSimul 150]
-                               #:nRepeat [nRepeat 150])
+                               #:nRepeat [nRepeat 150]
+                               #:fitnessFunction [fitnessFunction dErroAbsoluto])
   (let* ( (stockInfos (stock-getInfos stock num))
           (nInputs  (length (caar stockInfos)))
           (outputDirectory (string-append *output* nameSimul))
@@ -72,7 +81,7 @@
     ;;(displayln stockInfos)
     ;;(displayln nInputs)
     (make-directory* outputDirectory)
-    (let ( (infosToSave (list stock (cdr (last stockInfos)) num))
+    (let ( (infosToSave (list stock (cdr (last stockInfos)) num fitnessFunction))
            (np 100)
            (depth 4)
            (pc 0.7)
@@ -82,22 +91,25 @@
            (nElite 10)
            (endSimul 150)
            (nRepeat 150) )
-    (let ( (gpConfigs
-            (make-gp np nInputs *operators* depth pc pm nTournament k nElite endSimul nRepeat))
-           (gpConfigSymbol
-            (list np nInputs *operators* depth pc pm nTournament k nElite endSimul nRepeat)) )
-      (let-values ( ((bestExpr pop)
-                     (gp-run stockInfos gpConfigs))  )
+      (let ( (gpConfigs
+               (make-gp np nInputs *operators* depth pc pm nTournament k nElite endSimul nRepeat))
+             (gpConfigSymbol
+               (list np nInputs *operators* depth pc pm nTournament k nElite endSimul nRepeat)) )
 
-        (file-bkpInfo bestExpr outputExpr)
-        (file-bkpInfo pop outputPop)
-        (file-bkpInfo stockInfos outputStock)
-        (file-bkpInfo infosToSave outputInfos)
-        (file-bkpInfo gpConfigSymbol outputConfigs)
+        (set-gp-fitnessFunction! gpConfigs fitnessFunction)
         
-        (plot-stockPrediction stockInfos (car bestExpr) (inputs-create nInputs) outputPlot)
-        
-        ))
+        (let-values ( ((bestExpr pop)
+                       (gp-run stockInfos gpConfigs))  )
+          
+          (file-bkpInfo bestExpr outputExpr)
+          (file-bkpInfo pop outputPop)
+          (file-bkpInfo stockInfos outputStock)
+          (file-bkpInfo infosToSave outputInfos)
+          (file-bkpInfo gpConfigSymbol outputConfigs)
+          
+          (plot-stockPrediction stockInfos (car bestExpr) (inputs-create nInputs) outputPlot)
+          
+          ))
       ))
   )
 

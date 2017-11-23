@@ -21,7 +21,7 @@
            (listPrice    (read-file outputStock))
            (exprAll (read-file outputExpr)) )
       (match infosToSave
-        ( (list stock date num)
+        ( (list stock date num _)
           (let* ( (lastInput (last listPrice))
                   (lastInputPrice (caar lastInput))
                   (lastInputDate  (cdr lastInput))
@@ -41,8 +41,8 @@
                      (list (cdr diaryInfo)
                            price
                            pricePrediction
-                           (* errorA 100)
-                           (* errorR 100)))) )   )
+                           (* errorA 1)
+                           (* errorR 1)))) )   )
 
 
             (call-with-output-file outputHtml
