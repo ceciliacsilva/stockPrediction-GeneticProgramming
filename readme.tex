@@ -1,4 +1,4 @@
-% Created 2017-11-23 Qui 20:55
+% Created 2017-11-30 Qui 19:41
 \documentclass[11pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -35,20 +35,26 @@
 \subsection{Run.rkt}
 \label{sec-1-1}
 
-Model training:
+Treinar o modelo:
 
 \begin{verbatim}
 > (train-stockPrediction "aapl" 50 "Apple50-b" #:np 110 #:endSimul 110)
 \end{verbatim}
 
-Run:
+Um diretório com o nome do projeto será criado na pasta "output".
+
+Executar um modelo já criado:
 
 \begin{verbatim}
 > (run-stockPrediction "Apple50-b")
 \end{verbatim}
 
+Treina o modelo com os valores mais novos que a data do último treinamento.
+
 \subsection{htmlCreate.rkt}
 \label{sec-1-2}
+
+Para gerar o Relatório HTML:
 
 \begin{verbatim}
 > (html-responseStock "Apple50-b")

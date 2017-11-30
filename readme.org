@@ -6,20 +6,27 @@
 
 ** Run.rkt
 
-   Model training:
+   Treinar o modelo:
 
 #+BEGIN_SRC shell
 > (train-stockPrediction "aapl" 50 "Apple50-b" #:np 110 #:endSimul 110)
 #+END_SRC
-   
-   Run:
+
+   Um diretório com o nome do projeto será criado na pasta "output".
+
+   Executar um modelo já criado:
 
 #+BEGIN_SRC shell
 > (run-stockPrediction "Apple50-b")
 #+END_SRC
 
+   Treina o modelo com os valores mais novos que a data do último treinamento.
+
 ** htmlCreate.rkt
+
+   Para gerar o Relatório HTML:
 
 #+BEGIN_SRC shell
 > (html-responseStock "Apple50-b")
 #+END_SRC
+
