@@ -20,7 +20,9 @@
     (let ( (infosToSave (read-file outputInfos))
            (pop         (read-file outputPop))
            (gpConfigList (read-file outputConfigs))
-           (listPrice    (read-file outputStock)) )
+           (listPrice    (map (lambda(a) (cons (map exact->inexact (car a))
+                                               (cdr a)))
+                                (read-file outputStock))) )
       ;;(displayln gpConfigList)
       (match infosToSave
         ( (list stock date num fitnessFunction)
@@ -146,15 +148,15 @@
                        "c"    valueClose
                        "ma50" valueMa50
                        "ma200" _)
-                 (/ (string->number valueClose) 1) ))
+                 (/ (string->number valueClose) 1.0) ))
             
             ,(match marketCap
                ( (list "date" _  "v1" value)
-                 (/ (string->number value) 10000) ))
+                 (/ (string->number value) 10000.0) ))
 
             ,(match 1yearTreasure
                ( (list "date" _  "close" value)
-                 (/ (string->number value) 100) ))
+                 (/ (string->number value) 100.0) ))
             )
             .
             ,(match stockPrice
