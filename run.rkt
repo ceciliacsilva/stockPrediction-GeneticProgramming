@@ -149,6 +149,16 @@
                        "ma50" valueMa50
                        "ma200" _)
                  (/ (string->number valueClose) 1.0) ))
+
+            ,(match stockPrice
+               ( (list "d"    _
+                       "o"    _
+                       "h"    _
+                       "l"    _
+                       "c"    valueClose
+                       "ma50" valueMa50
+                       "ma200" _)
+                 (/ (string->number valueMa50) 100.0) ))
             
             ,(match marketCap
                ( (list "date" _  "v1" value)
